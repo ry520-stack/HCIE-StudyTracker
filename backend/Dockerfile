@@ -1,7 +1,7 @@
 FROM node:20 AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm config set registry https://registry.npmmirror.com && npm ci
 COPY . .
 COPY prisma/schema.prod.prisma prisma/schema.prisma
 RUN npx prisma generate && npm run build
