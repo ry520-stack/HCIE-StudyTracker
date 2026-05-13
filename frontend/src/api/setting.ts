@@ -35,3 +35,7 @@ export function updateDailyJournal(content: string, date?: string) {
   const q = date ? `?date=${date}` : '';
   return api<any>('PUT', `/api/setting/journal${q}`, { content });
 }
+
+export function resetAllData() {
+  return api<any>('POST', '/api/setting/reset');
+}

@@ -25,7 +25,7 @@ export default function CheckinPage() {
       load();
       showToast('打卡成功！继续加油 🔥');
     } catch (e: any) {
-      alert(e?.response?.data?.error || '打卡失败');
+      alert(e.message || '打卡失败，请检查网络连接');
     }
     setLoading(false);
   };
@@ -37,7 +37,7 @@ export default function CheckinPage() {
       showToast('补签成功！');
       setShowMakeup(false);
     } catch (e: any) {
-      alert(e?.response?.data?.error || '补签失败');
+      alert(e.message || '补签失败，请检查网络连接');
     }
   };
 

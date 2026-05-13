@@ -120,13 +120,14 @@ export async function reviewNote(
   if (!existing) return null;
 
   const newReviewCount = existing.reviewCount + 1;
+  const REVIEW_INTERVALS_LENGTH = 8;
 
   const [updatedNote] = await prisma.$transaction([
     prisma.note.update({
       where: { id },
       data: {
         reviewCount: newReviewCount,
-        nextReviewAt: getNextReviewTime(newReviewCount),
+        nextReviewAt: newReviewCount < REVIEW_INTERVALS_LENGTH ? getNextReviewTime(newReviewCount) : null,
       },
     }),
     prisma.reviewRecord.create({

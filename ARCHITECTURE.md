@@ -1,4 +1,4 @@
-# HCIE-StudyTracker 架构设计与核心逻辑复盘
+# StudyTracker 架构设计与核心逻辑复盘
 
 > 一份面向面试与复盘的高级全栈架构笔记
 > 技术栈：React 19 + TypeScript + Tailwind CSS 3 / Node.js + Express + Prisma ORM / SQLite → PostgreSQL
@@ -241,7 +241,7 @@ const INTERVALS = [1, 2, 4, 7, 15, 30, 60, 120]; // 天数
 │                                                       │
 │  AuthContext (user/token/login/logout/ready)          │
 │       │                                               │
-│       ├── localStorage.getItem('hcie-token')          │
+│       ├── localStorage.getItem('st-token')          │
 │       ├── api/client.ts: 自动注入 Authorization 头    │
 │       └── RequireAuth: 无 token → <Navigate /login>   │
 │                                                       │
@@ -281,8 +281,8 @@ const INTERVALS = [1, 2, 4, 7, 15, 30, 60, 120]; // 天数
 选择 `localStorage` 的核心原因：**前后端分离的 SPA 架构中，手动管理 Bearer Token 可以避免 CSRF 攻击，且与部署架构解耦**（未来迁移到小程序、React Native 时认证逻辑无需改造）。
 
 **实现要点**：
-- 注册/登录成功 → `localStorage.setItem('hcie-token', token)` + `setState(user)`
-- 退出 → `localStorage.removeItem('hcie-token')` + `setState(null)`
+- 注册/登录成功 → `localStorage.setItem('st-token', token)` + `setState(user)`
+- 退出 → `localStorage.removeItem('st-token')` + `setState(null)`
 - 每次 API 调用从 `localStorage` 读取 token，注入到 `Authorization` 头
 - 服务端返回 401 → 前端自动清除 token 并跳转 `/login`
 

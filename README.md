@@ -30,7 +30,7 @@
 ## 项目结构
 
 ```
-HCIE-StudyTracker/
+StudyTracker/
 ├── backend/           # Express API 服务
 │   ├── src/
 │   │   ├── controllers/  # 路由处理
@@ -49,8 +49,8 @@ HCIE-StudyTracker/
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/ry520-stack/HCIE-StudyTracker.git
-cd HCIE-StudyTracker
+git clone https://github.com/ry520-stack/StudyTracker.git
+cd StudyTracker
 
 # 2. 启动服务（需要 Docker）
 docker compose up -d --build
@@ -60,7 +60,7 @@ docker compose up -d --build
 
 ## APK 下载
 
-[GitHub Releases](https://github.com/ry520-stack/HCIE-StudyTracker/releases) 下载最新 APK。
+[GitHub Releases](https://github.com/ry520-stack/StudyTracker/releases) 下载最新 APK。
 
 ## License
 

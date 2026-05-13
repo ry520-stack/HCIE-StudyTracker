@@ -57,22 +57,34 @@ export default function NotesPage() {
       .split(/[,，、\s]+/)
       .map((s) => s.trim())
       .filter(Boolean);
-    await createNote({ title: title.trim(), content: content.trim(), tags });
-    setTitle('');
-    setContent('');
-    setTagInput('');
-    setShowForm(false);
-    load();
+    try {
+      await createNote({ title: title.trim(), content: content.trim(), tags });
+      setTitle('');
+      setContent('');
+      setTagInput('');
+      setShowForm(false);
+      load();
+    } catch (e: any) {
+      alert(e.message || '添加笔记失败，请检查网络连接');
+    }
   }
 
   async function handleReview(id: string) {
-    await reviewNote(id);
-    load();
+    try {
+      await reviewNote(id);
+      load();
+    } catch (e: any) {
+      alert(e.message || '复习打卡失败，请检查网络连接');
+    }
   }
 
   async function handleDelete(id: string) {
-    await deleteNote(id);
-    load();
+    try {
+      await deleteNote(id);
+      load();
+    } catch (e: any) {
+      alert(e.message || '删除失败，请检查网络连接');
+    }
   }
 
   // ---------- 工具 ----------
@@ -134,7 +146,7 @@ export default function NotesPage() {
                 <input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="例：OSPF, HCIE, 路由"
+                  placeholder="例：OSPF, 路由, 交换"
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>

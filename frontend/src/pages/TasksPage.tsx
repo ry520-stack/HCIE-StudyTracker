@@ -38,20 +38,32 @@ export default function TasksPage() {
 
   async function handleAdd() {
     if (!title.trim()) return;
-    await createTask({ title: title.trim(), type: taskType, priority });
-    setTitle('');
-    setShowForm(false);
-    load();
+    try {
+      await createTask({ title: title.trim(), type: taskType, priority });
+      setTitle('');
+      setShowForm(false);
+      load();
+    } catch (e: any) {
+      alert(e.message || '添加任务失败，请检查网络连接');
+    }
   }
 
   async function handleToggle(id: string) {
-    await toggleTask(id);
-    load();
+    try {
+      await toggleTask(id);
+      load();
+    } catch (e: any) {
+      alert(e.message || '操作失败，请检查网络连接');
+    }
   }
 
   async function handleDelete(id: string) {
-    await deleteTask(id);
-    load();
+    try {
+      await deleteTask(id);
+      load();
+    } catch (e: any) {
+      alert(e.message || '删除失败，请检查网络连接');
+    }
   }
 
   const FILTERS: { key: FilterType; label: string }[] = [

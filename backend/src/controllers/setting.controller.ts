@@ -47,3 +47,12 @@ export async function updateDailyJournal(req: Request, res: Response) {
   const journal = await settingService.upsertDailyJournal(req.userId!, date, content || '');
   res.json(journal);
 }
+
+export async function resetAllData(req: Request, res: Response) {
+  try {
+    const result = await settingService.resetUserData(req.userId!);
+    res.json(result);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || '重置失败' });
+  }
+}

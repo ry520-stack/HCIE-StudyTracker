@@ -119,6 +119,22 @@ export async function upsertDailyJournal(userId: string, date: string, content: 
   });
 }
 
+// 重置用户全部数据（保留账号和名言）
+export async function resetUserData(userId: string) {
+  await prisma.$transaction([
+    prisma.reviewRecord.deleteMany({ where: { note: { userId } } }),
+    prisma.note.deleteMany({ where: { userId } }),
+    prisma.task.deleteMany({ where: { userId } }),
+    prisma.focusSession.deleteMany({ where: { userId } }),
+    prisma.checkIn.deleteMany({ where: { userId } }),
+    prisma.makeupUsage.deleteMany({ where: { userId } }),
+    prisma.dailyGoal.deleteMany({ where: { userId } }),
+    prisma.dailyJournal.deleteMany({ where: { userId } }),
+    prisma.userAchievement.deleteMany({ where: { userId } }),
+  ]);
+  return { ok: true, message: '所有数据已重置' };
+}
+
 // Dashboard summary
 export async function getDashboardSummary(userId: string) {
   const date = new Date().toISOString().slice(0, 10);

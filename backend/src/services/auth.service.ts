@@ -2,20 +2,26 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 
-const SECRET = process.env.JWT_SECRET || 'fallback-secret';
+const SECRET = process.env.JWT_SECRET;
 const EXPIRES = process.env.JWT_EXPIRES_IN || '7d';
+
+if (!SECRET) {
+  console.warn('[auth] 未设置 JWT_SECRET 环境变量，使用不安全的临时密钥。请在生产环境中设置 JWT_SECRET。');
+}
 
 export interface AuthPayload {
   userId: string;
   role: string;
 }
 
+const JWT_SECRET: string = SECRET || 'hcie-dev-fallback-not-for-production';
+
 export function signToken(payload: AuthPayload): string {
-  return jwt.sign(payload, SECRET, { expiresIn: EXPIRES } as jwt.SignOptions);
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: EXPIRES } as jwt.SignOptions);
 }
 
 export function verifyToken(token: string): AuthPayload {
-  return jwt.verify(token, SECRET) as AuthPayload;
+  return jwt.verify(token, JWT_SECRET) as AuthPayload;
 }
 
 export async function register(username: string, email: string, password: string) {

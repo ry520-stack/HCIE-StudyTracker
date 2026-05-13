@@ -1,8 +1,8 @@
 {
-  "name": "hcie-studytracker-backend",
+  "name": "studytracker-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "HCIE-StudyTracker backend service",
+  "description": "StudyTracker backend service",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",

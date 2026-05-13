@@ -7,7 +7,7 @@ interface ThemeContextValue {
   toggleTheme: () => void;
 }
 
-const STORAGE_KEY = 'hcie-theme';
+const STORAGE_KEY = 'st-theme';
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 

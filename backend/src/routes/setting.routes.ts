@@ -11,5 +11,6 @@ router.get('/goal', settingController.getDailyGoal);
 router.put('/goal', settingController.updateDailyGoal);
 router.get('/journal', settingController.getDailyJournal);
 router.put('/journal', settingController.updateDailyJournal);
+router.post('/reset', settingController.resetAllData);
 
 export default router;

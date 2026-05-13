@@ -42,14 +42,24 @@ export default function DashboardPage() {
   useEffect(() => { load(); }, [load]);
 
   const saveJournal = async () => {
-    await updateDailyJournal(journal);
-    showToast('随笔已保存');
+    try {
+      await updateDailyJournal(journal);
+      showToast('随笔已保存');
+    } catch {
+      // 静默失败，随笔自动保存不需要打扰用户
+    }
   };
 
-  const adjustGoal = () => {
+  const adjustGoal = async () => {
     const mins = prompt('设置每日学习目标（分钟）：', String(data?.goal?.targetMinutes || 120));
     if (mins && !isNaN(+mins) && +mins > 0) {
-      updateDailyGoal(+mins).then(() => load());
+      try {
+        await updateDailyGoal(+mins);
+        load();
+        showToast('目标已更新');
+      } catch (e: any) {
+        alert(e.message || '设置目标失败');
+      }
     }
   };
 

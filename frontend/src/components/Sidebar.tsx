@@ -16,7 +16,7 @@ export default function Sidebar() {
     <aside className="flex h-full w-60 flex-col border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
       <div className="flex h-16 items-center gap-2 border-b border-gray-200 px-6 dark:border-gray-700">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">H</div>
-        <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">HCIE Tracker</span>
+        <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">StudyTracker</span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => (

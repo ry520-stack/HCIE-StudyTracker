@@ -96,13 +96,14 @@ export default function FocusPage() {
 
     intervalRef.current = setInterval(() => {
       const now = Date.now();
-      // 距离上次心跳经过了多久（扣除切屏时间）
-      const tickDelta = now - lastTickRef.current - totalHiddenRef.current;
+      // 隐藏时间先扣：只扣除用户真正在界面上的时间
+      const hiddenMs = totalHiddenRef.current;
+      totalHiddenRef.current = 0;
+      const effectiveDelta = now - lastTickRef.current - hiddenMs;
       lastTickRef.current = now;
-      totalHiddenRef.current = 0; // 已用掉，重置
 
-      // 最多扣除 1 秒（浏览器恢复时可能累积大量 delta）
-      const deduct = Math.min(Math.floor(tickDelta / 1000), 1);
+      // 只扣除实际有效的秒数
+      const deduct = Math.max(0, Math.floor(effectiveDelta / 1000));
       remainingRef.current = Math.max(0, remainingRef.current - deduct);
 
       // 同步到 React 状态
@@ -164,7 +165,8 @@ export default function FocusPage() {
     clearTick();
     const sid = sessionIdRef.current;
     if (sid) {
-      updateSession(sid, { status: 'FAILED', elapsed: 0, switched: switchedRef.current });
+      const elapsed = duration - remainingRef.current;
+      updateSession(sid, { status: 'FAILED', elapsed, switched: switchedRef.current });
     }
     sessionIdRef.current = null;
     remainingRef.current = duration;

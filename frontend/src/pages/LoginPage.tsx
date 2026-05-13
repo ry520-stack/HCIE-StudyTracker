@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 export default function LoginPage() {
   const { login, token } = useAuth();
   const nav = useNavigate();
-  const [email, setEmail] = useState('test@example.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +34,7 @@ export default function LoginPage() {
             H
           </div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">登录</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">HCIE-StudyTracker</p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">StudyTracker</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

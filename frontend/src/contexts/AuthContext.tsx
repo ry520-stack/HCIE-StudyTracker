@@ -17,8 +17,8 @@ interface AuthValue {
 
 const AuthContext = createContext<AuthValue | null>(null);
 
-const TOKEN_KEY = 'hcie-token';
-const USER_KEY = 'hcie-user';
+const TOKEN_KEY = 'st-token';
+const USER_KEY = 'st-user';
 
 function loadAuth(): { user: User | null; token: string | null } {
   try {
@@ -58,11 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch(`${API}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch {
+      throw new Error('无法连接服务器，请检查后端是否已启动');
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || '登录失败');
 
@@ -72,11 +77,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (username: string, email: string, password: string) => {
-    const res = await fetch(`${API}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+    } catch {
+      throw new Error('无法连接服务器，请检查后端是否已启动');
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || '注册失败');
 
