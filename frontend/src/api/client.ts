@@ -14,9 +14,12 @@ export async function api<T>(method: string, path: string, body?: unknown): Prom
   const token = getToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
+  const base = (import.meta as any).env?.VITE_API_BASE || '';
+  const url = base + path;
+
   let res: Response;
   try {
-    res = await fetch(path, {
+    res = await fetch(url, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,

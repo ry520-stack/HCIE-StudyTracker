@@ -40,7 +40,8 @@ function clearAuth() {
   localStorage.removeItem(USER_KEY);
 }
 
-const API = '/api/auth';
+const BASE = (import.meta as any).env?.VITE_API_BASE || '';
+const API = BASE + '/api/auth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
