@@ -77,7 +77,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatTile color="text-blue-600" num={`${data.tasks.done}/${data.tasks.total}`} label="任务完成" />
         <StatTile color="text-amber-500" num={String(data.notes.due)} label="待复习笔记" />
         <StatTile color="text-orange-500" num={`${data.checkin.streak}天`} label="连续打卡" />

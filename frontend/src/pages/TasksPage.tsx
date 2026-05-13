@@ -88,9 +88,9 @@ export default function TasksPage() {
 
       {/* 新增表单（手风琴式展开） */}
       {showForm && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex-1">
+        <div className="rounded-xl border border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-700 dark:bg-gray-900">
+          <div className="flex flex-wrap items-end gap-2 sm:gap-3">
+            <div className="w-full sm:flex-1">
               <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">任务标题</label>
               <input
                 autoFocus
@@ -125,7 +125,7 @@ export default function TasksPage() {
 
       {/* 统计卡片 */}
       {stats && (
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           {[
             { label: '总计', value: stats.total, color: 'text-gray-900 dark:text-gray-100' },
             { label: '已完成', value: stats.completed, color: 'text-green-600 dark:text-green-400' },

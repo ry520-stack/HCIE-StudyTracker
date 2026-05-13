@@ -185,7 +185,7 @@ export default function FocusPage() {
   //  渲染
   // ============================================================
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-3xl space-y-4 sm:space-y-8">
       {/* 标题 */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">专注倒计时</h1>
@@ -195,7 +195,7 @@ export default function FocusPage() {
       </div>
 
       {/* 计时器 + 控制面板 */}
-      <div className="flex flex-col items-center space-y-6 rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex flex-col items-center space-y-4 sm:space-y-6 rounded-2xl border border-gray-200 bg-white p-4 sm:p-8 dark:border-gray-700 dark:bg-gray-900">
         <TimerDisplay remaining={remaining} total={duration} status={status} />
 
         {/* 时长预设（仅 idle） */}

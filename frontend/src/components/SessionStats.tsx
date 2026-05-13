@@ -24,7 +24,7 @@ export default function SessionStats() {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4">
       {items.map(({ label, value, icon: Icon }) => (
         <div
           key={label}

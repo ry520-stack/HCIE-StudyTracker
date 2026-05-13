@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Quote, LogOut, Settings2, Plus, Trash2, X } from 'lucide-react';
+import { Quote, LogOut, Settings2, Plus, Trash2, X, Menu } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import { getDailyQuote, listQuotes, createQuote, deleteQuote, type QuoteItem } from '../api/quote';
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { user, logout, token } = useAuth();
   const [quote, setQuote] = useState('');
   const [showManager, setShowManager] = useState(false);
@@ -68,8 +68,15 @@ export default function Navbar() {
       <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-900">
         {/* 每日一言 */}
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <Quote size={16} className="shrink-0" />
-          <span className="max-w-md truncate">{quote || '加载中...'}</span>
+          <button
+            onClick={onToggleSidebar}
+            className="md:hidden rounded p-1 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="菜单"
+          >
+            <Menu size={20} />
+          </button>
+          <Quote size={16} className="shrink-0 hidden sm:block" />
+          <span className="max-w-[180px] sm:max-w-md truncate">{quote || '加载中...'}</span>
           {token && (
             <button
               onClick={openManager}
