@@ -1,1 +1,3 @@
 node_modules/\n.env\ndist/\n.next/\n*.log
+.env
+*.zip
