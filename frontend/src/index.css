@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+/* Calendar day cells */
+.day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: default;
+  transition: all .15s ease;
+}
+.day-cell:hover { background: rgba(59,130,246,.1); }
+
+/* Focus ring animation */
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,.1); }
+  50% { box-shadow: 0 0 40px rgba(59,130,246,.25); }
+}
+.timer-ring-running {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* Toast animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Smooth transitions for dark mode */
+* {
+  transition: background-color .2s ease, border-color .2s ease;
+}

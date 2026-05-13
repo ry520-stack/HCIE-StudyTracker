@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("USER")
+  settings  String   @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notes           Note[]
+  tasks           Task[]
+  focusSessions   FocusSession[]
+  checkIns        CheckIn[]
+  makeupUsages    MakeupUsage[]
+  dailyGoals      DailyGoal[]
+  dailyJournals   DailyJournal[]
+  achievements     UserAchievement[]
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  tags      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  nextReviewAt DateTime?
+  reviewCount  Int      @default(0)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  reviews ReviewRecord[]
+
+  @@index([userId])
+  @@index([nextReviewAt])
+}
+
+model ReviewRecord {
+  id        String   @id @default(uuid())
+  reviewedAt DateTime @default(now())
+  stage     Int
+
+  noteId String
+  note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  type        String   @default("SHORT_TERM")
+  description String?
+  priority    String   @default("medium")
+  completed   Boolean  @default(false)
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([completed])
+}
+
+model FocusSession {
+  id        String   @id @default(uuid())
+  startedAt DateTime @default(now())
+  duration  Int      @default(2700)
+  elapsed   Int      @default(0)
+  switched  Int      @default(0)
+  status    String   @default("RUNNING")
+  note      String   @default("")
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([startedAt])
+}
+
+model Quote {
+  id        String   @id @default(uuid())
+  content   String
+  author    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ====== NEW: Check-in, Achievements, Goals, Journal ======
+
+model CheckIn {
+  id        String   @id @default(uuid())
+  date      String
+  timestamp DateTime @default(now())
+  makeup    Boolean  @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model MakeupUsage {
+  id        String @id @default(uuid())
+  weekStart String
+  count     Int    @default(0)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+  @@index([userId])
+}
+
+model DailyGoal {
+  id            String @id @default(uuid())
+  date          String
+  targetMinutes Int    @default(120)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model DailyJournal {
+  id      String @id @default(uuid())
+  date    String
+  content String @default("")
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}

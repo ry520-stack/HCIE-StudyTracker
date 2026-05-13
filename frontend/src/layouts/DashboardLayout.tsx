@@ -1,0 +1,20 @@
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import Navbar from '../components/Navbar';
+
+export default function DashboardLayout() {
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+      {/* 左侧栏 */}
+      <Sidebar />
+
+      {/* 右侧主区域 */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto p-6">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
