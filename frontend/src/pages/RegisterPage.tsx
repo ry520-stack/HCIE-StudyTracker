@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -14,7 +14,46 @@ export default function RegisterPage() {
   const [sending, setSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
+  // 自定义验证码弹窗
+  const [captchaOpen, setCaptchaOpen] = useState(false);
+  const [captchaQuestion, setCaptchaQuestion] = useState('');
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
+  const captchaResolve = useRef<((ans: number | null) => void) | null>(null);
+  const captchaInputRef = useRef<HTMLInputElement>(null);
+
   if (token) return <Navigate to="/notes" replace />;
+
+  const askCaptcha = (question: string, _key: string): Promise<number | null> => {
+    return new Promise((resolve) => {
+      captchaResolve.current = resolve;
+      setCaptchaQuestion(question);
+      setCaptchaInput('');
+      setCaptchaError('');
+      setCaptchaOpen(true);
+      setTimeout(() => captchaInputRef.current?.focus(), 100);
+    });
+  };
+
+  const handleCaptchaOk = () => {
+    const val = parseInt(captchaInput, 10);
+    if (isNaN(val)) {
+      setCaptchaError('请输入数字');
+      return;
+    }
+    setCaptchaOpen(false);
+    captchaResolve.current?.(val);
+  };
+
+  const handleCaptchaCancel = () => {
+    setCaptchaOpen(false);
+    captchaResolve.current?.(null);
+  };
+
+  const handleCaptchaKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleCaptchaOk();
+    if (e.key === 'Escape') handleCaptchaCancel();
+  };
 
   const sendCode = async () => {
     setError('');
@@ -27,8 +66,6 @@ export default function RegisterPage() {
     const base = (import.meta as any).env?.VITE_API_BASE || '';
 
     // 1. 获取数学题
-    let captchaKey = '';
-    let captchaAnswer: number | undefined;
     try {
       const captchaRes = await fetch(base + '/api/auth/captcha');
       const captchaText = await captchaRes.text();
@@ -37,41 +74,39 @@ export default function RegisterPage() {
         throw new Error('服务器繁忙，请稍后重试');
       }
       if (!captchaRes.ok) throw new Error(captchaData.error || '获取验证题目失败');
-      captchaKey = captchaData.key;
-      const answerStr = prompt(captchaData.question, '');
-      if (!answerStr) { setError('请回答数学题'); return; }
-      captchaAnswer = parseInt(answerStr, 10);
-      if (isNaN(captchaAnswer)) { setError('请输入数字'); return; }
-    } catch (e: any) {
-      setError(e.message || '网络错误');
-      return;
-    }
 
-    // 2. 发送验证码
-    setSending(true);
-    try {
-      const res = await fetch(base + '/api/auth/send-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, captchaKey, captchaAnswer }),
-      });
-      let data: any;
-      const text = await res.text();
-      try { data = JSON.parse(text); } catch {
-        throw new Error('服务器繁忙，请稍后重试');
-      }
-      if (!res.ok) throw new Error(data.error || '发送失败');
-      let sec = 60;
-      setCountdown(sec);
-      const timer = setInterval(() => {
-        sec--;
+      // 弹出自定义数学题弹窗
+      const answer = await askCaptcha(captchaData.question, captchaData.key);
+      if (answer === null) { setError('请回答数学题'); return; }
+
+      // 2. 发送验证码
+      setSending(true);
+      try {
+        const res = await fetch(base + '/api/auth/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, captchaKey: captchaData.key, captchaAnswer: answer }),
+        });
+        let data: any;
+        const text = await res.text();
+        try { data = JSON.parse(text); } catch {
+          throw new Error('服务器繁忙，请稍后重试');
+        }
+        if (!res.ok) throw new Error(data.error || '发送失败');
+        let sec = 60;
         setCountdown(sec);
-        if (sec <= 0) clearInterval(timer);
-      }, 1000);
+        const timer = setInterval(() => {
+          sec--;
+          setCountdown(sec);
+          if (sec <= 0) clearInterval(timer);
+        }, 1000);
+      } catch (e: any) {
+        setError(e.message || '网络错误');
+      } finally {
+        setSending(false);
+      }
     } catch (e: any) {
       setError(e.message || '网络错误');
-    } finally {
-      setSending(false);
     }
   };
 
@@ -93,6 +128,45 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
+      {/* 数学题弹窗 */}
+      {captchaOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={handleCaptchaCancel}>
+          <div
+            className="w-full max-w-xs rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400">请回答以下问题</p>
+            <p className="mt-3 text-center text-2xl font-bold tracking-wider text-gray-800 dark:text-gray-100">
+              {captchaQuestion}
+            </p>
+            <input
+              ref={captchaInputRef}
+              type="number"
+              value={captchaInput}
+              onChange={e => setCaptchaInput(e.target.value)}
+              onKeyDown={handleCaptchaKeyDown}
+              placeholder="输入答案"
+              className="mt-4 w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-lg tracking-wider outline-none focus:border-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            />
+            {captchaError && <p className="mt-2 text-center text-xs text-red-500">{captchaError}</p>}
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={handleCaptchaCancel}
+                className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleCaptchaOk}
+                className="flex-1 rounded-xl bg-blue-500 py-2.5 text-sm font-medium text-white hover:bg-blue-600"
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-900">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-lg font-bold text-white">
