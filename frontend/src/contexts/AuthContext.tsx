@@ -10,7 +10,7 @@ interface AuthValue {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string, code?: string) => Promise<void>;
   logout: () => void;
   ready: boolean;
 }
@@ -77,13 +77,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveAuth(data.token, data.user);
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (username: string, email: string, password: string, code?: string) => {
     let res: Response;
     try {
       res = await fetch(`${API}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, code }),
       });
     } catch {
       throw new Error('无法连接服务器，请检查后端是否已启动');

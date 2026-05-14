@@ -41,6 +41,13 @@ export default function DashboardPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // 离线队列同步完成后自动刷新数据
+  useEffect(() => {
+    const onSync = () => load();
+    window.addEventListener('sync-complete', onSync);
+    return () => window.removeEventListener('sync-complete', onSync);
+  }, [load]);
+
   const saveJournal = async () => {
     try {
       await updateDailyJournal(journal);

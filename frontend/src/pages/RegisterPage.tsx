@@ -8,21 +8,50 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   if (token) return <Navigate to="/notes" replace />;
+
+  const sendCode = async () => {
+    if (!email) { setError('请先输入邮箱'); return; }
+    setError('');
+    setSending(true);
+    try {
+      const base = (import.meta as any).env?.VITE_API_BASE || '';
+      const res = await fetch(base + '/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || '发送失败');
+      setError('');
+      // 60秒倒计时
+      let sec = 60;
+      setCountdown(sec);
+      const timer = setInterval(() => {
+        sec--;
+        setCountdown(sec);
+        if (sec <= 0) clearInterval(timer);
+      }, 1000);
+    } catch (e: any) {
+      setError(e.message);
+    }
+    setSending(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (password.length < 6) {
-      setError('密码至少 6 位');
-      return;
-    }
+    if (password.length < 6) { setError('密码至少 6 位'); return; }
+    if (!code) { setError('请输入验证码'); return; }
     setLoading(true);
     try {
-      await register(username, email, password);
+      await register(username, email, password, code);
       nav('/notes');
     } catch (err: any) {
       setError(err.message);
@@ -55,10 +84,32 @@ export default function RegisterPage() {
           </div>
           <div>
             <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">邮箱</label>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                required
+              />
+              <button
+                type="button"
+                onClick={sendCode}
+                disabled={sending || countdown > 0}
+                className="shrink-0 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-600 transition-colors hover:bg-blue-100 disabled:opacity-50 dark:bg-blue-900/30 dark:text-blue-400"
+              >
+                {sending ? '发送中' : countdown > 0 ? `${countdown}s` : '获取验证码'}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">验证码</label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="6位数字验证码"
+              maxLength={6}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               required
             />

@@ -27,6 +27,8 @@ services:
       DATABASE_URL: postgresql://${DB_USER:-hcie_user}:${DB_PASSWORD:-hcie_pass}@db:5432/${DB_NAME:-hcie_tracker}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
       PORT: '3001'
     depends_on:
       db:

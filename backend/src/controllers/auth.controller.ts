@@ -1,13 +1,25 @@
 import { Request, Response } from 'express';
 import * as authService from '../services/auth.service';
+import { verifyCode } from '../services/verification.service';
 
 export async function register(req: Request, res: Response) {
-  const { username, email, password } = req.body;
+  const { username, email, password, code } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'username, email, password 均为必填' });
   }
   if (password.length < 6) {
     return res.status(400).json({ error: '密码至少 6 位' });
+  }
+
+  // 验证码校验
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (!code) {
+      return res.status(400).json({ error: '请输入验证码' });
+    }
+    const valid = await verifyCode(email, code);
+    if (!valid) {
+      return res.status(400).json({ error: '验证码错误或已过期' });
+    }
   }
 
   try {
