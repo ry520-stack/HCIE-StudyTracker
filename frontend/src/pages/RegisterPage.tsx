@@ -17,8 +17,13 @@ export default function RegisterPage() {
   if (token) return <Navigate to="/notes" replace />;
 
   const sendCode = async () => {
-    if (!email) { setError('请先输入邮箱'); return; }
     setError('');
+    if (!email) { setError('请先输入邮箱'); return; }
+    // 简易邮箱格式校验
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('请输入正确的邮箱格式');
+      return;
+    }
     setSending(true);
     try {
       const base = (import.meta as any).env?.VITE_API_BASE || '';
@@ -27,9 +32,15 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      // 尝试解析 JSON，失败则说明返回了 HTML 错误页
+      let data: any;
+      const text = await res.text();
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('服务器繁忙，请稍后重试');
+      }
       if (!res.ok) throw new Error(data.error || '发送失败');
-      setError('');
       // 60秒倒计时
       let sec = 60;
       setCountdown(sec);
@@ -39,9 +50,10 @@ export default function RegisterPage() {
         if (sec <= 0) clearInterval(timer);
       }, 1000);
     } catch (e: any) {
-      setError(e.message);
+      setError(e.message || '网络错误');
+    } finally {
+      setSending(false);
     }
-    setSending(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
