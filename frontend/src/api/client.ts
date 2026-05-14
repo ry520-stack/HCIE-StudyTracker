@@ -12,6 +12,27 @@ import {
 } from './offlineSync';
 
 const TOKEN_KEY = 'st-token';
+const SERVER_URL_KEY = 'st-server-url';
+
+function getBaseUrl(): string {
+  // 用户手动设置的优先
+  const manual = localStorage.getItem(SERVER_URL_KEY);
+  if (manual) return manual;
+  // 其次用构建时的环境变量
+  return (import.meta as any).env?.VITE_API_BASE || '';
+}
+
+export function getServerUrl(): string {
+  return getBaseUrl();
+}
+
+export function setServerUrl(url: string) {
+  if (url) {
+    localStorage.setItem(SERVER_URL_KEY, url.replace(/\/$/, ''));
+  } else {
+    localStorage.removeItem(SERVER_URL_KEY);
+  }
+}
 
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -52,7 +73,7 @@ export async function api<T>(method: string, path: string, body?: unknown): Prom
     const token = getToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const base = (import.meta as any).env?.VITE_API_BASE || '';
+    const base = getBaseUrl();
     const url = base + path;
 
     const res = await fetch(url, {

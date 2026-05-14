@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getServerUrl } from '../api/client';
 
 export default function RegisterPage() {
   const { register, token } = useAuth();
@@ -63,7 +64,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const base = (import.meta as any).env?.VITE_API_BASE || '';
+    const base = getServerUrl();
 
     // 1. 获取数学题
     try {

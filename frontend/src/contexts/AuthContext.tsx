@@ -40,8 +40,11 @@ function clearAuth() {
   localStorage.removeItem(USER_KEY);
 }
 
-const BASE = (import.meta as any).env?.VITE_API_BASE || '';
-const API = BASE + '/api/auth';
+function getApiBase() {
+  const manual = localStorage.getItem('st-server-url');
+  if (manual) return manual;
+  return (import.meta as any).env?.VITE_API_BASE || '';
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -61,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     let res: Response;
     try {
-      res = await fetch(`${API}/login`, {
+      res = await fetch(`${getApiBase()}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -80,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (username: string, email: string, password: string, code?: string) => {
     let res: Response;
     try {
-      res = await fetch(`${API}/register`, {
+      res = await fetch(`${getApiBase()}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password, code }),

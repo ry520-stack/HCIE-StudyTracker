@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AlertTriangle, Cloud, CloudOff, Download, Upload, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getSettings, updateSettings, resetAllData } from '../api/setting';
-import { isOnline, getQueue, processQueue, invalidateCache } from '../api/client';
+import { isOnline, getQueue, processQueue, invalidateCache, getServerUrl, setServerUrl } from '../api/client';
 import { api } from '../api/client';
 
 export default function SettingsPage() {
@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [pending, setPending] = useState(getQueue().length);
   const [syncing, setSyncing] = useState(false);
   const [pulling, setPulling] = useState(false);
+  const [serverUrl, setLocalServerUrl] = useState(getServerUrl());
 
   useEffect(() => {
     getSettings().then(s => {
@@ -138,7 +139,11 @@ export default function SettingsPage() {
   };
 
   const resetLabels = ['重置所有数据', '再次确认：此操作不可恢复！', '最后一次确认：真的要删除吗？'];
-  const apiBase = (import.meta as any).env?.VITE_API_BASE || '未配置';
+
+  const handleSaveServerUrl = () => {
+    setServerUrl(serverUrl);
+    alert('服务器地址已保存，建议刷新页面');
+  };
 
   return (
     <div className="max-w-lg space-y-6">
@@ -173,9 +178,23 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-3 text-sm">
-          <div className="flex justify-between text-gray-500">
-            <span>服务器</span>
-            <span className="max-w-[220px] truncate text-right text-gray-400">{apiBase}</span>
+          <div className="text-gray-500">
+            <div className="flex items-center gap-2 mb-1 text-sm">服务器地址</div>
+            <div className="flex gap-2">
+              <input
+                className="flex-1 rounded-xl border px-4 py-2 text-sm outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800"
+                value={serverUrl}
+                onChange={e => setLocalServerUrl(e.target.value)}
+                placeholder="https://xxx.trycloudflare.com"
+              />
+              <button
+                onClick={handleSaveServerUrl}
+                className="shrink-0 rounded-xl bg-blue-50 px-4 py-2 text-xs font-medium text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400"
+              >
+                保存
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-gray-400">服务器重启后隧道地址会变，在此更新即可，无需重新打包</p>
           </div>
 
           {user ? (
