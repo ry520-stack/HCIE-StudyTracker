@@ -6,3 +6,5 @@ dist/
 *.zip
 *.db
 *.db-journal
+
+*.tar.gz
