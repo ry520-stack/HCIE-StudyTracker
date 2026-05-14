@@ -83,9 +83,9 @@ export async function sendCode(
   const code = generateCode();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-  const sent = await sendVerificationCode(email, code);
-  if (!sent) {
-    return { success: false, message: '邮件发送失败，请检查服务器邮件配置' };
+  const result = await sendVerificationCode(email, code);
+  if (!result.ok) {
+    return { success: false, message: result.message || '邮件发送失败' };
   }
 
   await prisma.verificationCode.create({
