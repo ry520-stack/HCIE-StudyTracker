@@ -19,29 +19,48 @@ export default function RegisterPage() {
   const sendCode = async () => {
     setError('');
     if (!email) { setError('请先输入邮箱'); return; }
-    // 简易邮箱格式校验
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('请输入正确的邮箱格式');
       return;
     }
+
+    const base = (import.meta as any).env?.VITE_API_BASE || '';
+
+    // 1. 获取数学题
+    let captchaKey = '';
+    let captchaAnswer: number | undefined;
+    try {
+      const captchaRes = await fetch(base + '/api/auth/captcha');
+      const captchaText = await captchaRes.text();
+      let captchaData: any;
+      try { captchaData = JSON.parse(captchaText); } catch {
+        throw new Error('服务器繁忙，请稍后重试');
+      }
+      if (!captchaRes.ok) throw new Error(captchaData.error || '获取验证题目失败');
+      captchaKey = captchaData.key;
+      const answerStr = prompt(captchaData.question, '');
+      if (!answerStr) { setError('请回答数学题'); return; }
+      captchaAnswer = parseInt(answerStr, 10);
+      if (isNaN(captchaAnswer)) { setError('请输入数字'); return; }
+    } catch (e: any) {
+      setError(e.message || '网络错误');
+      return;
+    }
+
+    // 2. 发送验证码
     setSending(true);
     try {
-      const base = (import.meta as any).env?.VITE_API_BASE || '';
       const res = await fetch(base + '/api/auth/send-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, captchaKey, captchaAnswer }),
       });
-      // 尝试解析 JSON，失败则说明返回了 HTML 错误页
       let data: any;
       const text = await res.text();
-      try {
-        data = JSON.parse(text);
-      } catch {
+      try { data = JSON.parse(text); } catch {
         throw new Error('服务器繁忙，请稍后重试');
       }
       if (!res.ok) throw new Error(data.error || '发送失败');
-      // 60秒倒计时
       let sec = 60;
       setCountdown(sec);
       const timer = setInterval(() => {

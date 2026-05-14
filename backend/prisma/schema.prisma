@@ -175,3 +175,12 @@ model VerificationCode {
 
   @@index([email, code])
 }
+
+model Captcha {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  answer    Int
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

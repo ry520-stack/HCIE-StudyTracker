@@ -6,6 +6,7 @@ const router = Router();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.get('/captcha', verificationController.getCaptcha);
 router.post('/send-code', verificationController.sendCode);
 
 export default router;
